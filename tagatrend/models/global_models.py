@@ -23,6 +23,13 @@ def from_log(values):
     return np.expm1(values) / 100
 
 
+# The last observed value of each row (lag 1, in peak-so-far units): the persistence anchor.
+# With anchor=True a model predicts the log-change from it, so "no change" is the naive
+# forecast and the model only has to learn when and how far a term departs from it.
+def anchor_of(x, lookback):
+    return to_log(x[:, lookback - 1])
+
+
 # Return the GPU, or stop: CPU training is disabled, as in the notebooks.
 def require_cuda():
     if not torch.cuda.is_available():
@@ -35,9 +42,12 @@ class GlobalXGB:
 
     name = "XGBoost"
 
-    def __init__(self, horizon, seed=42, rounds=3000):
-        self.horizon, self.seed, self.rounds = horizon, seed, rounds
+    def __init__(self, horizon, lookback, seed=42, rounds=3000, anchor=True):
+        self.horizon, self.lookback, self.seed, self.rounds, self.anchor = horizon, lookback, seed, rounds, anchor
         self.booster = None
+
+    def _base(self, x):
+        return anchor_of(x, self.lookback)[:, None] if self.anchor else 0.0
 
     # One row per (origin, horizon): the origin's features plus h / horizon.
     def _rows(self, x):
@@ -49,7 +59,7 @@ class GlobalXGB:
         rows = self._rows(x)
         if y is None:
             return xgb.DMatrix(rows)
-        target = to_log(y).reshape(-1)
+        target = (to_log(y) - self._base(x)).reshape(-1)
         keep = np.isfinite(target)
         return xgb.DMatrix(rows[keep], label=target[keep])
 
@@ -69,17 +79,20 @@ class GlobalXGB:
     def predict(self, x):
         rounds = (0, self.booster.best_iteration + 1)
         out = self.booster.predict(self._matrix(x), iteration_range=rounds)
-        out = np.sort(out.reshape(len(x), self.horizon, len(QUANTILES)), axis=2)
+        out = out.reshape(len(x), self.horizon, len(QUANTILES))
+        out = np.sort(out + (self._base(x)[..., None] if self.anchor else 0.0), axis=2)
         return np.clip(from_log(out), 0, None)
 
     def save(self, path):
+        self.booster.set_attr(lookback=str(self.lookback), anchor=str(int(self.anchor)))
         self.booster.save_model(str(path))
 
     @classmethod
     def load(cls, path, horizon):
-        model = cls(horizon)
-        model.booster = xgb.Booster()
-        model.booster.load_model(str(path))
+        booster = xgb.Booster()
+        booster.load_model(str(path))
+        model = cls(horizon, int(booster.attr("lookback")), anchor=booster.attr("anchor") == "1")
+        model.booster = booster
         model.booster.set_param({"device": "cpu"})  # Inference on a single row is faster on CPU.
         if not hasattr(model.booster, "best_iteration") or model.booster.best_iteration is None:
             model.booster.best_iteration = model.booster.num_boosted_rounds() - 1
@@ -96,8 +109,8 @@ class _QuantileNet(torch.nn.Module):
             torch.nn.Linear(width, horizon * len(QUANTILES)))
 
     def forward(self, x):
-        # Softplus keeps forecasts non-negative; sorting keeps quantiles from crossing.
-        out = torch.nn.functional.softplus(self.body(x)).view(-1, self.horizon, len(QUANTILES))
+        # Sorting keeps quantiles from crossing; predictions are clipped at zero after the inverse.
+        out = self.body(x).view(-1, self.horizon, len(QUANTILES))
         return torch.sort(out, dim=2).values
 
 
@@ -115,10 +128,13 @@ class GlobalMLP:
 
     name = "MLP"
 
-    def __init__(self, horizon, lookback, seeds=(0, 1, 2, 3, 4), epochs=1500, patience=100):
-        self.horizon, self.lookback, self.seeds = horizon, lookback, seeds
+    def __init__(self, horizon, lookback, seeds=(0, 1, 2, 3, 4), epochs=1500, patience=100, anchor=True):
+        self.horizon, self.lookback, self.seeds, self.anchor = horizon, lookback, seeds, anchor
         self.epochs, self.patience = epochs, patience
         self.nets, self.inputs = [], None
+
+    def _base(self, x):
+        return anchor_of(x, self.lookback)[:, None] if self.anchor else np.float32(0)
 
     # Lags and level summaries go to log space; the other extras are already scale-free.
     def _inputs(self, x):
@@ -131,7 +147,8 @@ class GlobalMLP:
         device = require_cuda()
         q = torch.tensor(QUANTILES, device=device)
         xt, xv = (torch.as_tensor(self._inputs(x), device=device) for x in (x_train, x_val))
-        yt, yv = (torch.as_tensor(to_log(y), device=device) for y in (y_train, y_val))
+        yt, yv = (torch.as_tensor(to_log(y) - self._base(x), device=device)
+                  for x, y in ((x_train, y_train), (x_val, y_val)))
         self.inputs = x_train.shape[1]
         self.nets = []
         for seed in self.seeds:
@@ -163,17 +180,18 @@ class GlobalMLP:
         device = next(self.nets[0].parameters()).device
         with torch.no_grad():
             xs = torch.as_tensor(self._inputs(x), device=device)
-            out = torch.stack([net(xs) for net in self.nets]).median(dim=0).values
-        return np.clip(from_log(out.cpu().numpy()), 0, None)
+            out = torch.stack([net(xs) for net in self.nets]).median(dim=0).values.cpu().numpy()
+        out = out + (self._base(x)[..., None] if self.anchor else 0.0)
+        return np.clip(from_log(out), 0, None)
 
     def save(self, path):
-        torch.save({"inputs": self.inputs, "horizon": self.horizon, "lookback": self.lookback,
+        torch.save({"inputs": self.inputs, "horizon": self.horizon, "lookback": self.lookback, "anchor": self.anchor,
                     "states": [net.state_dict() for net in self.nets]}, path)
 
     @classmethod
     def load(cls, path, device="cpu"):
         saved = torch.load(path, map_location=device)
-        model = cls(saved["horizon"], saved["lookback"])
+        model = cls(saved["horizon"], saved["lookback"], anchor=saved.get("anchor", False))
         model.inputs = saved["inputs"]
         for state in saved["states"]:
             net = _QuantileNet(model.inputs, model.horizon).to(device)

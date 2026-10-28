@@ -4,7 +4,7 @@
     python scripts/train_models.py --no-timesfm
 
 Writes data/models/<freq>/: metrics.json, backtest/<slug>.json (replay forecasts for the
-website), xgb.json and mlp.pt (trained on every term) and meta.json.
+website), xgb.ubj and mlp.pt (trained on every term) and meta.json.
 """
 import argparse
 import json
@@ -18,7 +18,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from tagatrend.config import MODEL_DIR  # noqa: E402
-from tagatrend.evaluate import backtest, pooled_split, score, summary  # noqa: E402
+from tagatrend.evaluate import backtest, ensemble_weights, pooled_split, score, summary  # noqa: E402
 from tagatrend.features import EXTRA_FEATURES, QUANTILES, SETTINGS  # noqa: E402
 from tagatrend.models import GlobalMLP, GlobalXGB, require_cuda  # noqa: E402
 
@@ -42,7 +42,7 @@ def run(freq, use_timesfm):
     (out / "backtest").mkdir(parents=True, exist_ok=True)
     cfg = SETTINGS[freq]
     started = time.time()
-    data, predictions = backtest(freq, use_timesfm=use_timesfm)
+    data, predictions, folds = backtest(freq, use_timesfm=use_timesfm)
     scores = score(data, predictions, freq)
     scores["bucket"] = [bucket(h, freq) for h in scores["h"]]
 
@@ -54,6 +54,7 @@ def run(freq, use_timesfm):
         "by_horizon": records(summary(scores, ["h"])),
         "by_phase": records(summary(scores, ["phase"])),
         "by_trend": records(summary(scores, ["trend"])),
+        "folds": folds,
     }
     (out / "metrics.json").write_text(json.dumps(metrics, indent=1), encoding="utf-8")
 
@@ -71,17 +72,23 @@ def run(freq, use_timesfm):
             replay["origins"].append(entry)
         (out / "backtest" / f"{slug}.json").write_text(json.dumps(replay), encoding="utf-8")
 
-    # Production models: every term, chronological 80/20 split for early stopping.
-    xt, yt, xv, yv = pooled_split(data, list(data))
-    xgb_model = GlobalXGB(cfg["horizon"]).fit(xt, yt, xv, yv)
-    xgb_model.save(out / "xgb.json")
+    # Production models: every term, chronological 80/20 split for early stopping, and
+    # ensemble weights from that validation split.
+    xt, yt, xv, yv, sv, iv = pooled_split(data, list(data), with_index=True)
+    xgb_model = GlobalXGB(cfg["horizon"], cfg["lookback"]).fit(xt, yt, xv, yv)
+    xgb_model.save(out / "xgb.ubj")
     mlp_model = GlobalMLP(cfg["horizon"], cfg["lookback"]).fit(xt, yt, xv, yv)
     mlp_model.save(out / "mlp.pt")
+    val = {"XGBoost": xgb_model.predict(xv), "MLP": mlp_model.predict(xv)}
+    if use_timesfm:
+        val["TimesFM"] = np.stack([predictions[s]["TimesFM"][i] for s, i in iv])
+    weights, val_errors = ensemble_weights(val, yv, sv)
     meta = {"freq": freq, "lookback": cfg["lookback"], "horizon": cfg["horizon"],
             "quantiles": list(QUANTILES), "features": [f"lag_{i}" for i in range(cfg["lookback"], 0, -1)] + EXTRA_FEATURES,
             "trained_on": sorted(data), "train_origins": int(len(xt)), "val_origins": int(len(xv)),
             "xgb_best_iteration": int(xgb_model.booster.best_iteration),
-            "timesfm": use_timesfm, "gpu": torch.cuda.get_device_name(0),
+            "timesfm": use_timesfm, "ensemble_weights": weights, "val_mae_index": val_errors,
+            "gpu": torch.cuda.get_device_name(0),
             "seconds": round(time.time() - started, 1)}
     (out / "meta.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
     overall = summary(scores).set_index("model")[["mae_index", "skill_pct", "coverage_80"]].round(2)
@@ -96,3 +103,5 @@ if __name__ == "__main__":
     require_cuda()
     for freq in args.freq:
         run(freq, not args.no_timesfm)
+    from write_results import main as write_results
+    write_results()

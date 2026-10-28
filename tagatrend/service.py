@@ -17,6 +17,7 @@ from .catalog import BY_SLUG, TRENDS, slugify
 from .config import END_DATE, MODEL_DIR, PROCESSED_DIR, SEARCH_DIR
 from .features import QUANTILES, SETTINGS, mask_censored_zeros, origin_features
 from .fetch import TrendsError
+from .evaluate import weighted
 from .series import build_term, read_series
 
 FREQS = ("monthly", "weekly", "daily")
@@ -100,6 +101,7 @@ class Forecaster:
 
     def __init__(self):
         self._models = {}
+        self._weights = {}
         self._lock = threading.Lock()
         self.timesfm_error = None
 
@@ -109,13 +111,15 @@ class Forecaster:
                 import torch
                 from .models.global_models import GlobalMLP, GlobalXGB
                 folder = MODEL_DIR / freq
-                if not (folder / "xgb.json").exists():
+                if not (folder / "xgb.ubj").exists():
                     raise FileNotFoundError(f"No trained {freq} models. Run scripts/train_models.py.")
                 device = "cuda" if torch.cuda.is_available() else "cpu"
                 self._models[freq] = {
-                    "XGBoost": GlobalXGB.load(folder / "xgb.json", SETTINGS[freq]["horizon"]),
+                    "XGBoost": GlobalXGB.load(folder / "xgb.ubj", SETTINGS[freq]["horizon"]),
                     "MLP": GlobalMLP.load(folder / "mlp.pt", device=device),
                 }
+                meta = read_json(folder / "meta.json") or {}
+                self._weights[freq] = meta.get("ensemble_weights") or {"XGBoost": 1, "MLP": 1, "TimesFM": 1}
             return self._models[freq]
 
     # Forecast the next horizon from the last observed value on or before `origin`.
@@ -137,7 +141,7 @@ class Forecaster:
                 outputs["TimesFM"] = TimesFM().predict_histories([history], cfg["horizon"])[0]
             except Exception as error:  # TimesFM is optional at serve time.
                 self.timesfm_error = str(error)
-        outputs["Ensemble"] = np.mean(list(outputs.values()), axis=0)
+        outputs["Ensemble"] = weighted(outputs, self._weights[freq])
         step = pd.Timedelta(days=cfg["step_days"])
         dates = [f"{clean.index[-1] + step * (h + 1):%Y-%m-%d}" for h in range(cfg["horizon"])]
         return {
