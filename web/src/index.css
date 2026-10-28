@@ -46,8 +46,8 @@
   --text-kpi--line-height: 34px;
   --text-body: 14px;
   --text-body--line-height: 20px;
-  --text-small: 12px;
-  --text-small--line-height: 16px;
+  --text-small: 13px;
+  --text-small--line-height: 18px;
 }
 
 @layer base {

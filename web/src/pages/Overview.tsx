@@ -48,7 +48,7 @@ function CoreTrend({ row }: { row: LibraryRow }) {
           <dd className="text-body text-ink num">{c?.half_life_days == null ? '—' : `${c.half_life_days} days`}</dd>
         </div>
         <div>
-          <dt className="text-muted">Left after 4 weeks</dt>
+          <dt className="text-muted">After 4 weeks</dt>
           <dd className="text-body text-ink num">{c?.retention_4w_pct == null ? '—' : `${formatNumber(c.retention_4w_pct, 0)}% of peak`}</dd>
         </div>
       </dl>

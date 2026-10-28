@@ -52,10 +52,11 @@ const MARGIN = { top: 8, right: 12, bottom: 26, left: 32 }
 const MARKER_ROW = 18
 const DAY = 86_400_000
 
+// Years for long spans, "Jul 2015" for months, "12 Jul" for days: never a two-digit year that reads as a day.
 function tickFormat(span: number) {
   if (span > 3 * 365 * DAY) return new Intl.DateTimeFormat('en-PH', { year: 'numeric', timeZone: 'UTC' })
-  if (span > 75 * DAY) return new Intl.DateTimeFormat('en-PH', { month: 'short', year: '2-digit', timeZone: 'UTC' })
-  return new Intl.DateTimeFormat('en-PH', { day: 'numeric', month: 'short', timeZone: 'UTC' })
+  if (span > 150 * DAY) return new Intl.DateTimeFormat('en-PH', { month: 'short', year: 'numeric', timeZone: 'UTC' })
+  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 }
 
 const tooltipDate = new Intl.DateTimeFormat('en-PH', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
@@ -85,8 +86,16 @@ export function TimeChart({ lines, band, spans = [], markers = [], height = 220,
     y.domain([0, Math.max(ticks[ticks.length - 1], max) * 1.04])
     const x = scaleUtc().domain([t0, t1]).range([MARGIN.left, Math.max(MARGIN.left + 10, width - MARGIN.right)])
     y.range([height - MARGIN.bottom, top])
-    const xTicks = x.ticks(Math.max(3, Math.min(7, Math.floor(width / 120))))
-    return { x, y, ticks, xTicks, format: tickFormat(+t1 - +t0) }
+    const format = tickFormat(+t1 - +t0)
+    const seen = new Set<string>()
+    // Drop ticks whose label repeats the previous one (several ticks inside one month or year).
+    const xTicks = x.ticks(Math.max(3, Math.min(7, Math.floor(width / 120)))).filter((t) => {
+      const label = format.format(t)
+      if (seen.has(label)) return false
+      seen.add(label)
+      return true
+    })
+    return { x, y, ticks, xTicks, format }
   }, [lines, band, yMax, width, height, top])
 
   const { x, y } = geometry

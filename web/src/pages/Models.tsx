@@ -151,7 +151,7 @@ export function Models() {
                 <th className="pb-2 text-right font-normal">Ensemble error</th>
                 <th className="pb-2 text-right font-normal">Last value error</th>
                 <th className="pb-2 text-right font-normal">Skill</th>
-                <th className="pb-2 text-right font-normal">Forecasts</th>
+                <th className="pb-2 text-right font-normal">Scored points</th>
               </tr>
             </thead>
             <tbody>
