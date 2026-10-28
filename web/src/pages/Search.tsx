@@ -63,7 +63,7 @@ export function Search() {
       {!query ? <p className="text-body text-muted">Type a term in the search bar above.</p> : null}
       {query ? (
         <Card title="Progress" className="max-w-[640px]">
-          <ol className="flex flex-col">
+          <ol aria-live="polite" className="flex flex-col">
             {STEPS.map((label, i) => {
               const state = error && i === Math.max(0, done - 1) ? 'failed' : i < done - 1 || job?.status === 'done' ? 'done' : i === done - 1 || (i === 0 && !done) ? 'running' : 'waiting'
               return (

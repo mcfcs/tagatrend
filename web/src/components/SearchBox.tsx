@@ -66,6 +66,7 @@ export function SearchBox({ onDone, autoFocus = false }: { onDone?: () => void; 
       <input
         ref={input}
         id={`${listId}-input`}
+        name="q"
         autoFocus={autoFocus}
         value={query}
         onChange={(event) => {
@@ -87,9 +88,10 @@ export function SearchBox({ onDone, autoFocus = false }: { onDone?: () => void; 
         autoComplete="off"
         spellCheck={false}
         placeholder="Search a term, e.g. Marites or a new one…"
-        className="h-8 w-full rounded-control border border-control bg-sheet pl-9 pr-10 text-body text-ink placeholder:text-faint focus:border-observed focus:outline-none"
+        className="h-8 w-full rounded-control border border-control bg-sheet pl-9 pr-10 text-body text-ink placeholder:text-faint focus:border-observed focus:outline-none focus-visible:ring-2 focus-visible:ring-observed/25"
       />
       <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded-[4px] border border-edge px-1.5 text-small text-muted sm:block">/</kbd>
+      {/* The suggestion menu floats, so it keeps a shadow. taste-skill-ignore */}
       {open && options.length ? (
         <ul id={listId} role="listbox" className="absolute inset-x-0 top-10 z-30 overflow-hidden rounded-card border border-edge bg-sheet py-1 shadow-[0_8px_28px_rgba(0,0,0,0.12)]">
           {options.map((o, i) => (
@@ -101,7 +103,7 @@ export function SearchBox({ onDone, autoFocus = false }: { onDone?: () => void; 
               onMouseEnter={() => setActive(i)}
               className={`flex cursor-pointer items-center justify-between gap-4 px-3 py-2 text-body ${i === active ? 'bg-active' : ''}`}
             >
-              <span className={`truncate ${o.key === '__live' ? 'font-medium text-observed' : 'text-ink'}`}>{o.label}</span>
+              <span translate="no" className={`truncate ${o.key === '__live' ? 'font-medium text-observed' : 'text-ink'}`}>{o.label}</span>
               <span className="flex-none text-small text-muted">{o.hint}</span>
             </li>
           ))}

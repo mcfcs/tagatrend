@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { SkillChart } from '../components/charts/SkillChart'
 import { TitleRow } from '../components/Shell'
 import { Bar, Card, ErrorNote, KpiStrip, Segmented } from '../components/ui'
@@ -20,7 +20,9 @@ export function Models() {
   const { data, error, mutate } = useModels()
   const { data: library } = useLibrary()
   const available = (['weekly', 'daily'] as const).filter((f) => data?.[f])
-  const [freq, setFreq] = useState<ForecastFreq>('weekly')
+  const [params, setParams] = useSearchParams()
+  const freq: ForecastFreq = params.get('freq') === 'daily' ? 'daily' : 'weekly'
+  const setFreq = (value: ForecastFreq) => setParams(value === 'weekly' ? {} : { freq: value }, { replace: true })
   const active = data?.[freq] ? freq : available[0]
   const report = active ? data?.[active] : undefined
   const [model, setModel] = useState('Ensemble')

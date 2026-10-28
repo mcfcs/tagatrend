@@ -35,7 +35,7 @@ function Nav({ onNavigate }: { onNavigate?: () => void }) {
       <h2 className="mb-1.5 mt-7 px-2.5 text-small text-muted">The four set trends</h2>
       {core.map((t) => (
         <NavLink key={t.slug} to={`/trend/${t.slug}`} className={navClass} onClick={onNavigate}>
-          <span className="truncate">{t.query}</span>
+          <span translate="no" className="truncate">{t.query}</span>
         </NavLink>
       ))}
       {searched.length ? (
@@ -43,7 +43,7 @@ function Nav({ onNavigate }: { onNavigate?: () => void }) {
           <h2 className="mb-1.5 mt-7 px-2.5 text-small text-muted">Your searches</h2>
           {searched.map((t) => (
             <NavLink key={t.slug} to={`/trend/${t.slug}`} className={navClass} onClick={onNavigate}>
-              <span className="truncate">{t.query}</span>
+              <span translate="no" className="truncate">{t.query}</span>
             </NavLink>
           ))}
         </>
@@ -57,7 +57,7 @@ function Brand() {
     <Link to="/" className="flex items-center gap-2.5 rounded-control px-2.5">
       <Mark />
       <span className="leading-tight">
-        <span className="block text-body font-semibold text-ink">Tagatrend</span>
+        <span translate="no" className="block text-body font-semibold text-ink">Tagatrend</span>
         <span className="block text-small text-muted">Google Trends, Philippines</span>
       </span>
     </Link>
@@ -101,7 +101,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </button>
       </header>
       {menu ? (
-        <div role="dialog" aria-modal="true" aria-label="Menu" className="fixed inset-0 z-40 flex flex-col gap-6 overflow-y-auto bg-frame px-4 pb-8 pt-2 lg:hidden">
+        <div role="dialog" aria-modal="true" aria-label="Menu" className="fixed inset-0 z-40 flex flex-col gap-6 overflow-y-auto overscroll-contain bg-frame px-4 pb-8 pt-2 lg:hidden">
           <div className="flex h-12 items-center justify-between">
             <Brand />
             <button type="button" onClick={() => setMenu(false)} aria-label="Close menu" className="grid size-11 place-items-center rounded-control hover:bg-active">

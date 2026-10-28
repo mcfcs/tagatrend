@@ -63,7 +63,7 @@ function LibraryRail({ rows }: { rows: LibraryRow[] }) {
       <h2 className="mb-2 text-section font-semibold text-ink">Library</h2>
       <div className="rounded-card border border-edge bg-sheet">
         <ul>
-          {sorted.slice(0, 9).map((r) => (
+          {sorted.slice(0, 11).map((r) => (
             <li key={r.slug} className="border-b border-rule last:border-0">
               <Link to={`/trend/${r.slug}`} className="flex h-[45px] items-center justify-between gap-3 px-4 hover:bg-raised">
                 <span className="min-w-0">

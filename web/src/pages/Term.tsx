@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router'
 import { BarList } from '../components/charts/BarList'
 import { TimeChart, toData } from '../components/charts/TimeChart'
 import { ForecastReplay } from '../components/ForecastReplay'
@@ -13,7 +12,15 @@ const FREQ_LABEL: Record<Freq, string> = { monthly: 'Monthly', weekly: 'Weekly',
 
 function MainChart({ term }: { term: TermPayload }) {
   const freqs = (['monthly', 'weekly', 'daily'] as const).filter((f) => term.series[f]?.length)
-  const [freq, setFreq] = useState<Freq>(freqs.includes('daily') ? 'daily' : freqs[0])
+  const [params, setParams] = useSearchParams()
+  const fallback: Freq = freqs.includes('daily') ? 'daily' : freqs[0]
+  const freq = (freqs as readonly string[]).includes(params.get('res') ?? '') ? (params.get('res') as Freq) : fallback
+  const setFreq = (value: Freq) =>
+    setParams((p) => {
+      if (value === fallback) p.delete('res')
+      else p.set('res', value)
+      return p
+    }, { replace: true, preventScrollReset: true })
   const points = toData(term.series[freq] ?? [])
   const weeks = term.summary.weeks
   const peak = term.summary.lifecycle?.peak_date
@@ -189,7 +196,7 @@ export function Term() {
       <TitleRow
         title={
           <span className="flex flex-wrap items-center gap-3">
-            {term.query}
+            <span translate="no">{term.query}</span>
             <PhasePill phase={phase} />
           </span>
         }

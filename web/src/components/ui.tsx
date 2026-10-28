@@ -44,7 +44,7 @@ export function Segmented<T extends string>({ value, options, onChange, label }:
           disabled={o.disabled}
           onClick={() => onChange(o.value)}
           className={`rounded-[5px] px-3 text-small font-medium transition-colors disabled:cursor-not-allowed disabled:text-faint/60 ${
-            value === o.value ? 'bg-sheet text-ink shadow-[0_1px_2px_rgba(0,0,0,0.08)]' : 'text-muted hover:text-ink'
+            value === o.value ? 'bg-sheet text-ink ring-1 ring-edge' : 'text-muted hover:text-ink'
           }`}
         >
           {o.label}

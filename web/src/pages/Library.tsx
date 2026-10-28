@@ -1,5 +1,5 @@
-import { useDeferredValue, useState } from 'react'
-import { Link } from 'react-router'
+import { useDeferredValue } from 'react'
+import { Link, useSearchParams } from 'react-router'
 import { TitleRow } from '../components/Shell'
 import { Bar, ErrorNote, PhasePill, Segmented } from '../components/ui'
 import { useLibrary, type LibraryRow } from '../lib/api'
@@ -23,8 +23,17 @@ function YearStrip({ row }: { row: LibraryRow }) {
 
 export function Library() {
   const { data, error, mutate } = useLibrary()
-  const [sort, setSort] = useState<Sort>('peak')
-  const [filter, setFilter] = useState('')
+  const [params, setParams] = useSearchParams()
+  const sort = (['peak', 'half', 'name'].includes(params.get('sort') ?? '') ? params.get('sort') : 'peak') as Sort
+  const filter = params.get('q') ?? ''
+  const update = (key: string, value: string, fallback: string) =>
+    setParams((p) => {
+      if (value === fallback) p.delete(key)
+      else p.set(key, value)
+      return p
+    }, { replace: true })
+  const setSort = (value: Sort) => update('sort', value, 'peak')
+  const setFilter = (value: string) => update('q', value, '')
   const needle = useDeferredValue(filter).trim().toLowerCase()
   const rows = (data?.trends ?? [])
     .filter((r) => !needle || r.query.toLowerCase().includes(needle) || r.blurb.toLowerCase().includes(needle))
@@ -46,10 +55,11 @@ export function Library() {
         <label className="w-full sm:w-[316px]">
           <span className="sr-only">Filter the library</span>
           <input
+            name="filter"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filter by name or meaning…"
-            className="h-8 w-full rounded-control border border-control px-3 text-body placeholder:text-faint focus:border-observed focus:outline-none"
+            className="h-8 w-full rounded-control border border-control px-3 text-body placeholder:text-faint focus:border-observed focus:outline-none focus-visible:ring-2 focus-visible:ring-observed/25"
           />
         </label>
         <Segmented
@@ -87,7 +97,7 @@ export function Library() {
             {rows.map((r) => (
               <tr key={r.slug} className="border-t border-rule first:border-t-0 hover:bg-raised md:first:border-t">
                 <td className="max-w-[360px] px-4 py-3">
-                  <Link to={`/trend/${r.slug}`} className="font-medium text-ink hover:text-observed">{r.query}</Link>
+                  <Link to={`/trend/${r.slug}`} translate="no" className="font-medium text-ink hover:text-observed">{r.query}</Link>
                   {r.group === 'core' ? <span className="ml-2 text-small text-muted">Set trend</span> : null}
                   <div className="mt-0.5 line-clamp-2 text-small text-muted">{r.blurb}</div>
                   <div className="mt-2 flex items-center gap-3 text-small text-muted md:hidden num">

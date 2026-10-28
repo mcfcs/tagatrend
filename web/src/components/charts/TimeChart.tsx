@@ -78,7 +78,7 @@ export function TimeChart({ lines, band, spans = [], markers = [], height = 220,
       ...all.map((p) => p.v ?? 0),
       ...(band?.points.map((p) => p.hi) ?? []),
     )
-    const max = yMax ?? peak
+    const max = Math.max(yMax ?? 0, peak)
     const y = scaleLinear().domain([0, max]).nice(4)
     const ticks = y.ticks(4)
     // Keep the top tick above the data so the line never touches the frame.
@@ -190,6 +190,7 @@ export function TimeChart({ lines, band, spans = [], markers = [], height = 220,
           </g>
         ) : null}
       </svg>
+      {/* The tooltip floats over the chart, so it keeps a shadow. taste-skill-ignore */}
       {hovered ? (
         <div
           className="pointer-events-none absolute top-1 z-10 rounded-control bg-primary px-2.5 py-1.5 text-small text-white shadow-[0_4px_16px_rgba(0,0,0,0.18)] num"

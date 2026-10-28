@@ -1,4 +1,5 @@
 import { startTransition, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { useForecast, useReplay, type ForecastFreq, type Quantiles, type TermPayload } from '../lib/api'
 import { formatDay, formatNumber } from '../lib/format'
 import { TimeChart, toData, type Datum } from './charts/TimeChart'
@@ -35,7 +36,15 @@ function mae(forecast: number[], actual: (number | null)[]) {
 export function ForecastReplay({ term }: { term: TermPayload }) {
   const available = (['daily', 'weekly'] as const).filter((f) => (term.series[f]?.length ?? 0) > LOOKBACK[f] + 4)
   const [freq, setFreq] = useState<ForecastFreq>(available[0] ?? 'weekly')
-  const [model, setModel] = useState<Model>('Ensemble')
+  const [params, setParams] = useSearchParams()
+  const model: Model = (MODELS as readonly string[]).includes(params.get('model') ?? '') ? (params.get('model') as Model) : 'Ensemble'
+  const setParam = (key: string, value: string | null) =>
+    setParams((p) => {
+      if (value === null) p.delete(key)
+      else p.set(key, value)
+      return p
+    }, { replace: true, preventScrollReset: true })
+  const setModel = (value: Model) => setParam('model', value === 'Ensemble' ? null : value)
   const points = term.series[freq] ?? []
   const reachesEnd = points.length > 0 && (Date.parse(term.end_date) - Date.parse(points[points.length - 1][0])) / 86_400_000 <= 14
   const hasReplay = term.replay[freq]
@@ -48,8 +57,9 @@ export function ForecastReplay({ term }: { term: TermPayload }) {
   const stops = reachesEnd ? [...origins, LATEST] : origins
   const peakDate = term.summary.lifecycle?.peak_date
   const defaultIndex = Math.max(0, origins.findIndex((d) => peakDate && d >= peakDate) - (freq === 'daily' ? 2 : 1))
-  const [picked, setPicked] = useState<Record<string, number>>({})
-  const index = Math.min(picked[freq] ?? defaultIndex, Math.max(0, stops.length - 1))
+  const at = params.get('at')
+  const pickedIndex = at === 'latest' ? stops.indexOf(LATEST) : at ? stops.indexOf(at) : -1
+  const index = Math.min(pickedIndex >= 0 ? pickedIndex : defaultIndex, Math.max(0, stops.length - 1))
   const stop = stops[index]
   const isLatest = stop === LATEST
 
@@ -100,7 +110,7 @@ export function ForecastReplay({ term }: { term: TermPayload }) {
       aside={
         <div className="flex flex-wrap items-center gap-2">
           {available.length > 1 ? (
-            <Segmented label="Resolution" value={freq} onChange={setFreq} options={available.map((f) => ({ value: f, label: f === 'daily' ? 'Daily' : 'Weekly' }))} />
+            <Segmented label="Resolution" value={freq} onChange={(f) => { setFreq(f); setParam('at', null) }} options={available.map((f) => ({ value: f, label: f === 'daily' ? 'Daily' : 'Weekly' }))} />
           ) : null}
           <Segmented
             label="Model"
@@ -129,7 +139,7 @@ export function ForecastReplay({ term }: { term: TermPayload }) {
                 value={index}
                 onChange={(event) => {
                   const value = Number(event.target.value)
-                  startTransition(() => setPicked((p) => ({ ...p, [freq]: value })))
+                  startTransition(() => setParam('at', stops[value] === LATEST ? 'latest' : stops[value]))
                 }}
                 className="mt-2 h-6 w-full cursor-pointer accent-[#0038a8]"
               />
@@ -139,7 +149,7 @@ export function ForecastReplay({ term }: { term: TermPayload }) {
               </div>
             </div>
           </div>
-          <dl className="flex flex-col gap-5 lg:border-l lg:border-edge lg:pl-6">
+          <dl aria-live="polite" className="flex flex-col gap-5 lg:border-l lg:border-edge lg:pl-6">
             <div>
               <dt className="text-body font-medium text-muted">{model} missed by</dt>
               <dd className="mt-1 text-kpi text-ink num">
