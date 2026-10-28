@@ -1,0 +1,37 @@
+{
+  "Peak week": {
+    "start": "2015-10-19",
+    "end": "2015-10-25",
+    "scores": {
+      "Ilocos Region": 100.0,
+      "MIMAROPA": 98.0,
+      "Central Luzon": 75.0,
+      "Cordillera Administrative Region": 69.0,
+      "Calabarzon": 65.0,
+      "Metro Manila": 58.0,
+      "Zamboanga Peninsula": 55.0,
+      "Western Visayas": 55.0,
+      "Bicol": 48.0,
+      "Central Visayas": 42.0,
+      "Davao Region": 37.0,
+      "Northern Mindanao": 29.0,
+      "Region XII": 24.0
+    }
+  },
+  "Last 30 days": {
+    "start": "2026-09-28",
+    "end": "2026-10-27",
+    "scores": {
+      "Calabarzon": 100.0,
+      "Central Luzon": 100.0,
+      "Metro Manila": 82.0,
+      "Ilocos Region": 33.0,
+      "Cordillera Administrative Region": 32.0,
+      "Zamboanga Peninsula": 29.0,
+      "Bicol": 25.0,
+      "Davao Region": 20.0,
+      "Western Visayas": 12.0,
+      "Central Visayas": 8.0
+    }
+  }
+}

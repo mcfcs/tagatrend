@@ -1,0 +1,31 @@
+{
+  "Peak week": {
+    "start": "2010-04-26",
+    "end": "2010-05-02",
+    "scores": {
+      "Metro Manila": 100.0
+    }
+  },
+  "Last 30 days": {
+    "start": "2026-09-28",
+    "end": "2026-10-27",
+    "scores": {
+      "Region XII": 100.0,
+      "Calabarzon": 74.0,
+      "Central Luzon": 70.0,
+      "Metro Manila": 65.0,
+      "Central Visayas": 61.0,
+      "Cagayan Valley": 31.0,
+      "Ilocos Region": 26.0,
+      "Cordillera Administrative Region": 25.0,
+      "MIMAROPA": 22.0,
+      "Eastern Visayas": 22.0,
+      "Davao Region": 21.0,
+      "Northern Mindanao": 21.0,
+      "Caraga": 20.0,
+      "Bicol": 19.0,
+      "Western Visayas": 19.0,
+      "Zamboanga Peninsula": 19.0
+    }
+  }
+}

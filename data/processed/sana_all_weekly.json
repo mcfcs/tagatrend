@@ -1,0 +1,19 @@
+{
+  "query": "Sana All",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "weekly",
+  "window": "2018-01-01 2026-10-27",
+  "request_windows": [
+    "2018-01-01 2021-12-30",
+    "2020-12-31 2024-12-29",
+    "2022-10-29 2026-10-27"
+  ],
+  "pulls_per_window": [
+    1,
+    1,
+    1
+  ],
+  "dropouts_masked": 0,
+  "built_utc": "2026-10-28T23:24:54+00:00"
+}

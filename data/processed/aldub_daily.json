@@ -1,0 +1,15 @@
+{
+  "query": "AlDub",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "daily",
+  "window": "2015-06-18 2016-03-03",
+  "request_windows": [
+    "2015-06-18 2016-03-03"
+  ],
+  "pulls_per_window": [
+    1
+  ],
+  "dropouts_masked": 0,
+  "built_utc": "2026-10-28T23:24:55+00:00"
+}

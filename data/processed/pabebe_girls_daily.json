@@ -1,0 +1,17 @@
+{
+  "query": "Pabebe Girls",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "daily",
+  "window": "2015-05-01 2016-04-30",
+  "request_windows": [
+    "2015-05-01 2016-01-15",
+    "2015-08-15 2016-04-30"
+  ],
+  "pulls_per_window": [
+    1,
+    1
+  ],
+  "dropouts_masked": 4,
+  "built_utc": "2026-10-28T23:24:54+00:00"
+}

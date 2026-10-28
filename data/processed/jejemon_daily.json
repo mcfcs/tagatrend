@@ -1,0 +1,15 @@
+{
+  "query": "Jejemon",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "daily",
+  "window": "2010-01-16 2010-10-02",
+  "request_windows": [
+    "2010-01-16 2010-10-02"
+  ],
+  "pulls_per_window": [
+    1
+  ],
+  "dropouts_masked": 1,
+  "built_utc": "2026-10-28T23:24:55+00:00"
+}

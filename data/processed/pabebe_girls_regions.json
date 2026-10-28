@@ -1,0 +1,22 @@
+{
+  "Peak week": {
+    "start": "2015-07-06",
+    "end": "2015-07-12",
+    "scores": {
+      "Calabarzon": 100.0,
+      "Metro Manila": 84.0,
+      "Central Luzon": 77.0,
+      "Central Visayas": 49.0,
+      "Davao Region": 40.0
+    }
+  },
+  "Last 30 days": {
+    "start": "2026-09-28",
+    "end": "2026-10-27",
+    "scores": {
+      "Ilocos Region": 100.0,
+      "Calabarzon": 2.0,
+      "Metro Manila": 2.0
+    }
+  }
+}

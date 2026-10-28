@@ -1,0 +1,70 @@
+{
+ "freq": "weekly",
+ "lookback": 26,
+ "horizon": 12,
+ "quantiles": [
+  0.1,
+  0.5,
+  0.9
+ ],
+ "features": [
+  "lag_26",
+  "lag_25",
+  "lag_24",
+  "lag_23",
+  "lag_22",
+  "lag_21",
+  "lag_20",
+  "lag_19",
+  "lag_18",
+  "lag_17",
+  "lag_16",
+  "lag_15",
+  "lag_14",
+  "lag_13",
+  "lag_12",
+  "lag_11",
+  "lag_10",
+  "lag_9",
+  "lag_8",
+  "lag_7",
+  "lag_6",
+  "lag_5",
+  "lag_4",
+  "lag_3",
+  "lag_2",
+  "lag_1",
+  "window_max",
+  "mean_7",
+  "mean_prev_7",
+  "growth",
+  "slope",
+  "since_peak",
+  "since_window_max",
+  "age",
+  "dow_sin",
+  "dow_cos"
+ ],
+ "trained_on": [
+  "aldub",
+  "jejemon",
+  "pabebe_girls",
+  "sana_all"
+ ],
+ "train_origins": 830,
+ "val_origins": 210,
+ "xgb_best_iteration": 511,
+ "timesfm": true,
+ "ensemble_weights": {
+  "XGBoost": 0.32910443894179625,
+  "MLP": 0.29728342541920205,
+  "TimesFM": 0.3736121356390017
+ },
+ "val_mae_index": {
+  "XGBoost": 0.47028541564941406,
+  "MLP": 0.4948152005672455,
+  "TimesFM": 0.44138532876968384
+ },
+ "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+ "seconds": 61.4
+}
