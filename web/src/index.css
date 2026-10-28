@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+/* Framed-sheet app style (tasteskill seed 289994683). Colour lives on data only:
+   observed interest in the flag's blue, forecasts in the sun's amber, peaks in the flag's red. */
+@theme {
+  --font-sans: "IBM Plex Sans", Inter, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-frame: #f7f8fa;
+  --color-sheet: #ffffff;
+  --color-raised: #f4f6f8;
+  --color-active: #ebedee;
+  --color-edge: #e8eaec;
+  --color-rule: #f0f1f2;
+  --color-control: #cdced1;
+  --color-ink: #131416;
+  --color-muted: #5d5f60;
+  --color-faint: #6b6b6b;
+  --color-primary: #1d1f20;
+
+  --color-observed: #0038a8;
+  --color-forecast: #a86f0c;
+  --color-peak: #ce1126;
+  --color-positive: #1e7b4f;
+  --color-negative: #c4242a;
+
+  --color-pill-positive-bg: #dcfae5;
+  --color-pill-positive-ink: #04250e;
+  --color-pill-negative-bg: #ffedea;
+  --color-pill-negative-ink: #831c1e;
+  --color-pill-warning-bg: #fffbeb;
+  --color-pill-warning-ink: #92400e;
+  --color-pill-neutral-bg: #ebedee;
+  --color-pill-neutral-ink: #353736;
+  --color-grid: #e5e5e5;
+
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --radius-sheet: 16px;
+
+  --text-title: 22px;
+  --text-title--line-height: 28px;
+  --text-section: 16px;
+  --text-section--line-height: 24px;
+  --text-kpi: 28px;
+  --text-kpi--line-height: 34px;
+  --text-body: 14px;
+  --text-body--line-height: 20px;
+  --text-small: 12px;
+  --text-small--line-height: 16px;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-frame font-sans text-body text-ink antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-observed);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: #d6e0f5;
+  }
+}
+
+@utility num {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Long-form docs: one measure, the text face, real tables and code. */
+.doc {
+  font-size: 16px;
+  line-height: 26px;
+}
+.doc h1 { @apply mb-2 text-title font-semibold tracking-[-0.01em]; }
+.doc h2 { @apply mb-3 mt-12 text-[18px] font-semibold leading-7; }
+.doc h3 { @apply mb-2 mt-8 text-section font-semibold; }
+.doc p, .doc ul, .doc ol { @apply mb-4; }
+.doc ul { @apply list-disc pl-5; }
+.doc ol { @apply list-decimal pl-5; }
+.doc li { @apply mb-1; }
+.doc a { @apply text-observed underline-offset-2 hover:underline; }
+.doc code { @apply rounded-[4px] bg-raised px-1 py-0.5 font-mono text-[14px]; }
+.doc pre { @apply mb-5 overflow-x-auto rounded-card bg-raised p-4 text-[13px] leading-5; }
+.doc pre code { @apply bg-transparent p-0; }
+.doc table { @apply mb-5 block w-full overflow-x-auto text-body; }
+.doc th { @apply border-b border-edge px-3 py-2 text-left text-small font-normal text-muted; }
+.doc td { @apply border-b border-rule px-3 py-2 align-top; }
+.doc blockquote { @apply mb-4 border-l-2 border-control pl-4 text-muted; }
