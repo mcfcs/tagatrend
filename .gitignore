@@ -1,5 +1,12 @@
-/data
+# Raw Google responses and live searches stay local; stitched series and models are committed.
+/data/*
+!/data/processed/
+!/data/models/
 /.venv/
 /artifacts/
 __pycache__/
 .ipynb_checkpoints/
+/.taste-skill/
+/.playwright-cli/
+/web/node_modules/
+/web/dist/

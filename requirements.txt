@@ -1,0 +1,13 @@
+# Install CUDA PyTorch first (RTX 50-series needs a CUDA 12.8+ wheel):
+#   uv pip install torch --index-url https://download.pytorch.org/whl/cu130
+numpy>=2
+pandas>=2.2
+scipy>=1.13
+matplotlib>=3.9
+pytrends==4.9.2
+scikit-learn>=1.6
+xgboost>=3.1
+statsmodels>=0.14
+timesfm[torch]==3.0.2
+flask>=3.1
+ipykernel>=6.29
