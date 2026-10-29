@@ -34,12 +34,12 @@ For frontend work, run `npm run dev` in `web/` (Vite on port 5173, proxying `/ap
 ## Deploy on your tailnet
 
 ```bat
-deploy.bat          :: build the frontend, serve with waitress on 127.0.0.1:8050, publish via Tailscale Serve
+deploy.bat          :: build the frontend, serve with waitress on 127.0.0.1:18723, publish via Tailscale Serve
 deploy.bat direct   :: no Tailscale Serve: bind the Tailscale IP, firewall open to 100.64.0.0/10 only
-deploy.bat stop     :: remove the Tailscale Serve proxy
+deploy.bat stop     :: remove the Tailscale Serve proxies
 ```
 
-With Tailscale Serve the site is at `https://<machine>.<tailnet>.ts.net/` for devices on your tailnet only; it is not exposed to the LAN or the internet. Keep the window open while it serves; Ctrl+C stops it.
+With Tailscale Serve the site is at `http://<tailscale-ip>:18723/` (or `http://<machine>:18723/`) and `https://<machine>.<tailnet>.ts.net/`, for devices on your tailnet only; it is not exposed to the LAN or the internet. Keep the window open while it serves; Ctrl+C stops it.
 
 ## Layout
 

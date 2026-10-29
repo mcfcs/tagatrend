@@ -1,16 +1,17 @@
 @echo off
 rem Tagatrend: build the dashboard and serve it to your tailnet.
 rem
-rem   deploy.bat           build the frontend, then serve on https://<this-machine>.<tailnet>.ts.net
-rem   deploy.bat direct    skip Tailscale Serve; bind the Tailscale IP instead (http://100.x.y.z:8050)
-rem   deploy.bat stop      remove the Tailscale Serve proxy (the server itself stops with Ctrl+C)
+rem   deploy.bat           build the frontend, then serve to the tailnet on port 18723
+rem   deploy.bat direct    skip Tailscale Serve; bind the Tailscale IP instead (http://100.x.y.z:18723)
+rem   deploy.bat stop      remove the Tailscale Serve proxies (the server itself stops with Ctrl+C)
 rem
-rem The server is waitress (production WSGI) on 127.0.0.1:8050. Tailscale Serve proxies HTTPS on
-rem the tailnet to it, so nothing is exposed on the LAN and no firewall rule is needed.
+rem The server is waitress (production WSGI) on 127.0.0.1:18723. Tailscale Serve publishes it on the
+rem tailnet as http://<machine>:18723 and https://<machine>.<tailnet>.ts.net, so nothing is exposed
+rem on the LAN and no firewall rule is needed.
 setlocal EnableExtensions
 cd /d "%~dp0"
 
-set "PORT=8050"
+set "PORT=18723"
 set "PY=%~dp0.venv\Scripts\python.exe"
 set "TS=tailscale"
 where tailscale >nul 2>&1 || set "TS=%ProgramFiles%\Tailscale\tailscale.exe"
@@ -60,9 +61,15 @@ goto serve
 
 :have_tailscale
 if /i "%MODE%"=="direct" goto direct
-call "%TS%" serve --bg --https=443 http://127.0.0.1:%PORT% >nul 2>&1
+rem The same port on the Tailscale address (TCP forwarding works for the IP and any hostname;
+rem HTTP serve would match the MagicDNS name only), plus HTTPS on the MagicDNS name.
+call "%TS%" serve --bg --tcp=%PORT% tcp://127.0.0.1:%PORT% >nul 2>&1
 if errorlevel 1 goto no_serve
-for /f "delims=" %%n in ('call "%PY%" scripts\tailnet_name.py "%TS%"') do set "URL=https://%%n/"
+call "%TS%" serve --bg --https=443 http://127.0.0.1:%PORT% >nul 2>&1
+set "URL=http://%TSIP%:%PORT%/"
+set "NAME="
+for /f "delims=" %%n in ('call "%PY%" scripts\tailnet_name.py "%TS%"') do set "NAME=%%n"
+if defined NAME set "URL=http://%TSIP%:%PORT%/  or  https://%NAME%/"
 goto serve
 
 :no_serve
@@ -81,14 +88,15 @@ if errorlevel 1 echo Could not add a firewall rule. Run "deploy.bat direct" once
 echo.
 echo   Local:    http://127.0.0.1:%PORT%/
 if defined URL echo   Tailnet:  %URL%
-echo   Stop the server with Ctrl+C. "deploy.bat stop" removes the Tailscale proxy.
+echo   Stop the server with Ctrl+C. "deploy.bat stop" removes the Tailscale proxies.
 echo.
 "%PY%" server\app.py --prod %HOSTS% --port %PORT%
 exit /b %errorlevel%
 
 :stop
-call "%TS%" serve --https=443 off
-echo Tailscale Serve proxy removed.
+call "%TS%" serve --tcp=%PORT% off >nul 2>&1
+call "%TS%" serve --https=443 off >nul 2>&1
+echo Tailscale Serve proxies removed.
 exit /b 0
 
 :build_failed
