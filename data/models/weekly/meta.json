@@ -49,6 +49,7 @@
   "aldub",
   "budol",
   "charot",
+  "dasurv",
   "forda",
   "jejemon",
   "lodi",
@@ -59,22 +60,23 @@
   "petmalu",
   "sana_all",
   "trentahin",
+  "werpa",
   "what_haffen_vella"
  ],
- "train_origins": 2542,
- "val_origins": 643,
- "xgb_best_iteration": 212,
+ "train_origins": 2899,
+ "val_origins": 734,
+ "xgb_best_iteration": 220,
  "timesfm": true,
  "ensemble_weights": {
-  "XGBoost": 0.3122801830528583,
-  "MLP": 0.32080986781190995,
-  "TimesFM": 0.3669099491352318
+  "XGBoost": 0.30672230821280494,
+  "MLP": 0.32828792455424616,
+  "TimesFM": 0.3649897672329489
  },
  "val_mae_index": {
-  "XGBoost": 2.2003159523010254,
-  "MLP": 2.170867919921875,
-  "TimesFM": 2.0299134254455566
+  "XGBoost": 2.1498119831085205,
+  "MLP": 2.078000783920288,
+  "TimesFM": 1.9707558155059814
  },
  "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
- "seconds": 154.6
+ "seconds": 190.1
 }

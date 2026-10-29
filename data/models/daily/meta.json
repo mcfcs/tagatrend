@@ -64,36 +64,33 @@
  "trained_on": [
   "aldub",
   "budol",
-  "dasurv",
   "forda",
   "fox_silica",
   "jejemon",
   "lodi",
   "marites",
-  "naol",
   "never_grow_old",
   "pabebe_girls",
   "pak_ganern",
   "petmalu",
   "sana_all",
   "trentahin",
-  "werpa",
-  "what_haffen_vella"
+  "werpa"
  ],
- "train_origins": 2812,
- "val_origins": 713,
- "xgb_best_iteration": 762,
+ "train_origins": 2457,
+ "val_origins": 622,
+ "xgb_best_iteration": 1285,
  "timesfm": true,
  "ensemble_weights": {
-  "XGBoost": 0.33735839850444393,
-  "MLP": 0.2985816653589332,
-  "TimesFM": 0.3640599361366229
+  "XGBoost": 0.33078388861719926,
+  "MLP": 0.3116368383463931,
+  "TimesFM": 0.35757927303640763
  },
  "val_mae_index": {
-  "XGBoost": 1.648500680923462,
-  "MLP": 1.752279281616211,
-  "TimesFM": 1.5868959426879883
+  "XGBoost": 1.7596018314361572,
+  "MLP": 1.8128513097763062,
+  "TimesFM": 1.6923898458480835
  },
  "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
- "seconds": 391.6
+ "seconds": 386.8
 }
