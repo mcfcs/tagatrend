@@ -1,0 +1,17 @@
+{
+  "query": "Charot",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "weekly",
+  "window": "2017-12-01 2023-11-30",
+  "request_windows": [
+    "2017-12-01 2021-11-29",
+    "2019-12-02 2023-11-30"
+  ],
+  "pulls_per_window": [
+    1,
+    1
+  ],
+  "dropouts_masked": 49,
+  "built_utc": "2026-10-29T01:37:35+00:00"
+}

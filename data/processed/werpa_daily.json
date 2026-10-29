@@ -1,0 +1,15 @@
+{
+  "query": "Werpa",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "daily",
+  "window": "2005-02-15 2005-11-01",
+  "request_windows": [
+    "2005-02-15 2005-11-01"
+  ],
+  "pulls_per_window": [
+    1
+  ],
+  "dropouts_masked": 0,
+  "built_utc": "2026-10-29T01:30:09+00:00"
+}

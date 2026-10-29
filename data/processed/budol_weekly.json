@@ -1,0 +1,17 @@
+{
+  "query": "Budol",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "weekly",
+  "window": "2020-08-01 2026-07-31",
+  "request_windows": [
+    "2020-08-01 2024-07-30",
+    "2022-08-02 2026-07-31"
+  ],
+  "pulls_per_window": [
+    1,
+    1
+  ],
+  "dropouts_masked": 0,
+  "built_utc": "2026-10-29T01:32:34+00:00"
+}

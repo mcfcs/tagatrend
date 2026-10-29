@@ -1,0 +1,15 @@
+{
+  "query": "Trentahin",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "daily",
+  "window": "2025-10-18 2026-07-04",
+  "request_windows": [
+    "2025-10-18 2026-07-04"
+  ],
+  "pulls_per_window": [
+    1
+  ],
+  "dropouts_masked": 0,
+  "built_utc": "2026-10-29T01:39:56+00:00"
+}

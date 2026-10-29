@@ -1,0 +1,15 @@
+{
+  "query": "Naol",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "daily",
+  "window": "2020-05-18 2021-02-01",
+  "request_windows": [
+    "2020-05-18 2021-02-01"
+  ],
+  "pulls_per_window": [
+    1
+  ],
+  "dropouts_masked": 0,
+  "built_utc": "2026-10-29T01:31:28+00:00"
+}

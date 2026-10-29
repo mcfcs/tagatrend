@@ -1,0 +1,30 @@
+{
+  "Peak week": {
+    "start": "2017-10-16",
+    "end": "2017-10-22",
+    "scores": {
+      "Central Visayas": 100.0,
+      "Northern Mindanao": 95.0,
+      "Davao Region": 80.0,
+      "Region XII": 79.0,
+      "Western Visayas": 71.0,
+      "Bicol": 63.0,
+      "Central Luzon": 52.0,
+      "Ilocos Region": 51.0,
+      "Cordillera Administrative Region": 50.0,
+      "Calabarzon": 42.0,
+      "Metro Manila": 42.0
+    }
+  },
+  "Last 30 days": {
+    "start": "2026-09-28",
+    "end": "2026-10-27",
+    "scores": {
+      "Western Visayas": 100.0,
+      "Central Visayas": 73.0,
+      "Central Luzon": 67.0,
+      "Metro Manila": 61.0,
+      "Calabarzon": 44.0
+    }
+  }
+}

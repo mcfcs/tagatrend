@@ -1,0 +1,15 @@
+{
+  "query": "Petmalu",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "daily",
+  "window": "2017-07-18 2018-04-03",
+  "request_windows": [
+    "2017-07-18 2018-04-03"
+  ],
+  "pulls_per_window": [
+    1
+  ],
+  "dropouts_masked": 0,
+  "built_utc": "2026-10-29T01:29:04+00:00"
+}

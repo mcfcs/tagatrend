@@ -1,0 +1,15 @@
+{
+  "query": "What Haffen Vella",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "daily",
+  "window": "2025-02-15 2025-11-01",
+  "request_windows": [
+    "2025-02-15 2025-11-01"
+  ],
+  "pulls_per_window": [
+    1
+  ],
+  "dropouts_masked": 0,
+  "built_utc": "2026-10-29T01:38:53+00:00"
+}

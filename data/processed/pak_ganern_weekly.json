@@ -1,0 +1,17 @@
+{
+  "query": "Pak Ganern",
+  "geo": "PH",
+  "kind": "time",
+  "freq": "weekly",
+  "window": "2014-08-02 2020-07-31",
+  "request_windows": [
+    "2014-08-02 2018-07-31",
+    "2016-08-02 2020-07-31"
+  ],
+  "pulls_per_window": [
+    1,
+    1
+  ],
+  "dropouts_masked": 0,
+  "built_utc": "2026-10-29T01:40:54+00:00"
+}
