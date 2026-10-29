@@ -1,8 +1,10 @@
 {
-  "Peak week": {
-    "start": "2011-05-23",
-    "end": "2011-05-29",
-    "scores": {}
+  "Peak month": {
+    "start": "2023-07-01",
+    "end": "2023-07-31",
+    "scores": {
+      "Metro Manila": 100.0
+    }
   },
   "Last 30 days": {
     "start": "2026-09-28",

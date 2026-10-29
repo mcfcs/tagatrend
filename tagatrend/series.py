@@ -14,6 +14,10 @@ from .config import (BACKBONE_START, DROPOUT_FLOOR, END_DATE, GEO, OVERLAP_DAYS,
 from .fetch import TrendsError, archived_pulls, load_trends
 
 FREQ_DAYS = {"daily": 1, "weekly": 7}
+# A series whose smoothed peak (7 days, or 3 weeks) is below this is one isolated nonzero sample:
+# Google's volume for the term is under its reporting threshold at that resolution.
+# One lone day of 100 smooths to 100 / 7 = 14.3; one lone week to 33.3.
+SPARSE_PEAK = {"daily": 20, "weekly": 34}
 
 
 # Split a long date range into overlapping request windows short enough for daily or weekly rows.
@@ -149,6 +153,26 @@ def save_series(series, metadata, slug, out_dir=PROCESSED_DIR):
                                                             encoding="utf-8")
 
 
+# True when the series is a lone sample rather than a lifecycle (see SPARSE_PEAK).
+def too_sparse(series, freq):
+    window = 7 if freq == "daily" else 3
+    smooth = series.interpolate(limit_area="inside").rolling(window, center=True, min_periods=1).mean()
+    return not smooth.max() >= SPARSE_PEAK[freq]
+
+
+# The peak month to centre the weekly and daily windows on. A catalog term carries the year its
+# trend was researched to peak; a monthly maximum more than two years away from it is a noise
+# month from a low-volume period (Werpa's 2005, years before the word), so the highest month
+# within a year of the researched one is used instead. Searched terms keep the raw maximum.
+def peak_month(monthly, year=None):
+    peak = monthly.idxmax()
+    if year and abs(peak.year - year) > 2:
+        near = monthly.loc[f"{year - 1}-01-01":f"{year + 1}-12-31"]
+        if near.max() > 0:
+            return near.idxmax()
+    return peak
+
+
 # Read a processed series back (None if it was never built).
 def read_series(slug, freq, out_dir=PROCESSED_DIR):
     path = Path(out_dir) / f"{slug}_{freq}.csv"
@@ -169,7 +193,10 @@ def build_term(entry, end=END_DATE, out_dir=PROCESSED_DIR, raw_dir=RAW_DIR, pull
     monthly, meta = build_monthly(slug, query, end, raw_dir, pull_dir)
     save_series(monthly, meta, slug, out_dir)
     built["monthly"] = monthly
-    spans = auto_spans(monthly.idxmax(), end)
+    peak = peak_month(monthly, entry.get("year"))
+    if peak != monthly.idxmax():
+        step(f"monthly maximum {monthly.idxmax():%Y-%m} is a noise month; centring on {peak:%Y-%m}")
+    spans = auto_spans(peak, end)
 
     for freq in ("weekly", "daily"):
         override = entry.get(freq, "auto")
@@ -183,6 +210,11 @@ def build_term(entry, end=END_DATE, out_dir=PROCESSED_DIR, raw_dir=RAW_DIR, pull
         except (TrendsError, ValueError) as error:
             step(f"{freq} skipped ({error})")
             continue
+        if too_sparse(series, freq):
+            step(f"{freq} dropped (one isolated sample: volume is below Google's {freq} threshold)")
+            for suffix in (".csv", ".json"):
+                (Path(out_dir) / f"{slug}_{freq}{suffix}").unlink(missing_ok=True)
+            continue
         save_series(series, meta, slug, out_dir)
         built[freq] = series
 
@@ -194,8 +226,8 @@ def build_term(entry, end=END_DATE, out_dir=PROCESSED_DIR, raw_dir=RAW_DIR, pull
         monday = peak_day - pd.Timedelta(days=peak_day.weekday())
         windows = [("Peak week", monday, monday + pd.Timedelta(days=6))]
     else:
-        peak_month = monthly.idxmax()
-        windows = [("Peak month", peak_month, peak_month + pd.offsets.MonthEnd(0))]
+        month = peak_month(monthly, entry.get("year"))
+        windows = [("Peak month", month, month + pd.offsets.MonthEnd(0))]
     end_ts = pd.Timestamp(end)
     windows.append(("Last 30 days", end_ts - pd.Timedelta(days=29), end_ts))
     for label, start, stop in windows:

@@ -145,7 +145,8 @@ def summarize(series_by_freq, end):
         "resurgences": resurgences(monthly) if monthly is not None else [],
     }
     if monthly is not None and monthly.max() > 0:
-        summary["peak_month"] = f"{monthly.idxmax():%Y-%m}"
+        # The finer series' peak when there is one: a monthly maximum can be a noise month.
+        summary["peak_month"] = cycle["peak_date"][:7] if cycle else f"{monthly.idxmax():%Y-%m}"
         summary["latest_month"] = {"date": f"{monthly.index[-1]:%Y-%m}",
                                    "value": float(np.nan_to_num(monthly.iloc[-1]))}
     return summary

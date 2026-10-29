@@ -1,8 +1,11 @@
 {
-  "Peak week": {
-    "start": "2025-05-26",
-    "end": "2025-06-01",
-    "scores": {}
+  "Peak month": {
+    "start": "2025-05-01",
+    "end": "2025-05-31",
+    "scores": {
+      "Metro Manila": 100.0,
+      "Calabarzon": 85.0
+    }
   },
   "Last 30 days": {
     "start": "2026-09-28",
