@@ -119,4 +119,18 @@ def spa(path):
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, threaded=True)
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Serve the Tagatrend API and built frontend.")
+    parser.add_argument("--host", action="append", help="Address to bind; repeat for several (default 127.0.0.1)")
+    parser.add_argument("--port", type=int, default=5000)
+    parser.add_argument("--prod", action="store_true", help="Serve with waitress instead of Flask's dev server")
+    args = parser.parse_args()
+    hosts = args.host or ["127.0.0.1"]
+    if args.prod:
+        from waitress import serve
+
+        print("Tagatrend on " + ", ".join(f"http://{h}:{args.port}" for h in hosts), flush=True)
+        serve(app, listen=" ".join(f"{h}:{args.port}" for h in hosts), threads=8, channel_timeout=120)
+    else:
+        app.run(host=hosts[0], port=args.port, threaded=True)

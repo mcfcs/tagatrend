@@ -31,6 +31,16 @@ The processed data and trained models are committed, so the site works on a fres
 
 For frontend work, run `npm run dev` in `web/` (Vite on port 5173, proxying `/api` to Flask on 5000).
 
+## Deploy on your tailnet
+
+```bat
+deploy.bat          :: build the frontend, serve with waitress on 127.0.0.1:8050, publish via Tailscale Serve
+deploy.bat direct   :: no Tailscale Serve: bind the Tailscale IP, firewall open to 100.64.0.0/10 only
+deploy.bat stop     :: remove the Tailscale Serve proxy
+```
+
+With Tailscale Serve the site is at `https://<machine>.<tailnet>.ts.net/` for devices on your tailnet only; it is not exposed to the LAN or the internet. Keep the window open while it serves; Ctrl+C stops it.
+
 ## Layout
 
 | Path | What it is |
